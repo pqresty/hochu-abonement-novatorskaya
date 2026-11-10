@@ -1,0 +1,19 @@
+
+<script src="https://flexifit.fitbase.io/vue-resources/schedule-widget/init.js" defer></script>
+<script>/* модуль Fitbase живёт в Shadow DOM: шрифт, плашки и цвета, которых нет в настройках Fitbase (там задаётся только основной #8E5A3C) */
+(function(){var n=0;var t=setInterval(function(){n++;var h=document.querySelector('fitbase-widget'),sr=h&&h.shadowRoot;
+if(sr&&!sr.getElementById('fbSkin')){var st=document.createElement('style');st.id='fbSkin';var W='#fitbase-widget#fitbase-widget';
+st.textContent='#fitbase-widget,#fitbase-widget *{font-family:Onest,system-ui,-apple-system,sans-serif!important}'
++'.event_wrapper{border-radius:0!important;border:1px solid #CBBAA2!important;background:#F2ECE2!important;box-shadow:none!important}'
++W+' .btn-blue{background-color:#8E5A3C}'
++W+' .btn-blue:disabled,'+W+' .btn[disabled]{background:#E0D2BF!important;color:#63594C!important;cursor:default}'
++W+' .btn-branch.selected,'+W+' .btn-white.selected{background-color:#8E5A3C;color:#FBF6EE}'
++W+'.touch .wrapper .calendar .fc-day-today{color:#8E5A3C}'
++W+'.desktop .wrapper .calendar .fc-day-today .fc-col-header_day_title .fc-col-header_date{color:#8E5A3C}'
++W+' .modal_footer .event_description_read_more,'+W+' .link_text_blue{color:#8E5A3C}'
++W+' .vue-checkbox-group .vue-checkbox--checked .vue-checkbox__inner:after{border-color:#8E5A3C}'
++W+' .checkbox_wrapper label input[value=true]+span{box-shadow:1px 5px 14px rgba(142,90,60,.45)!important}'
++'#fitbase-widget [fill="#3C67D6"]{fill:#8E5A3C}#fitbase-widget [stroke="#3C67D6"]{stroke:#8E5A3C}';
+sr.appendChild(st);clearInterval(t);} if(n>80)clearInterval(t);},200);})();</script>
+</body>
+</html>
