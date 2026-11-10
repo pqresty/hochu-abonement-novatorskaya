@@ -1,4 +1,4 @@
-"""Build the review copy from the preserved Claude v42 fragment. Python 3, no dependencies."""
+"""Build the review copy based on Claude v42. Python 3, no dependencies."""
 from pathlib import Path
 import html
 import json
@@ -57,4 +57,4 @@ assert page.count('<html ') == page.count('</html>') == 1
 (OUT / 'index.html').write_text(page)
 (OUT / '.nojekyll').touch()
 (OUT / 'robots.txt').write_text('User-agent: *\nDisallow: /\n')
-print('Built docs/index.html:', len(page.encode()), 'bytes. Original v42 source preserved.')
+print('Built docs/index.html:', len(page.encode()), 'bytes.')
