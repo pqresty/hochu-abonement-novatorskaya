@@ -2,13 +2,15 @@
 from pathlib import Path
 import re
 import shutil
+import hashlib
 
 ROOT = Path(__file__).resolve().parent
 
 def render_variant(page):
     variant = page.replace('class="b" id="broot"', 'class="b b-editorial" id="broot"', 1)
     assert variant != page
-    variant = variant.replace('</head>', '<link rel="stylesheet" href="assets/editorial.css">\n</head>', 1)
+    css_version = hashlib.sha256((ROOT / 'src/editorial.css').read_bytes()).hexdigest()[:12]
+    variant = variant.replace('</head>', '<link rel="stylesheet" href="assets/editorial.css?v=' + css_version + '">\n</head>', 1)
     variant = variant.replace('Версия для обсуждения. Расписание и контакты студии действующие.',
         'Вариант оформления · <a href="compare.html">Было — стало</a> · <a href="index.html#full">Прежний сайт</a>')
     variant = variant.replace('<div class="b-post">', '<div class="b-post e-notes">', 1)
