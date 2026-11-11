@@ -23,39 +23,10 @@ def render_variant(page):
     principles = ''.join(
         '<details class="e-principle" open><summary><h3>' + h + '</h3><span aria-hidden="true"></span></summary><div><p>' + p + '</p></div></details>'
         for h, p in items)
-    new_team = ('<section class="b-s e-team" id="komanda"><div class="b-w e-teamgrid">'
-        '<div class="b-head"><h2 class="b-d1">' + title + '</h2><p class="b-p b-mut">' + intro + '</p></div>'
-        '<div class="e-principles">' + principles + '</div></div></section>')
+    # Retain the complete original desktop chapter, including its cards and typography.
+    # Only add the previously approved mobile accordion.
+    new_team = team.replace('</section>', '<div class="b-w e-mobile-principles"><div class="e-principles">' + principles + '</div></div></section>')
     variant = re.sub(team_re, lambda m: new_team, variant, count=1, flags=re.S)
-
-    footers = list(re.finditer(r'<footer class="b-w">.*?</footer>', variant, re.S))
-    assert len(footers) == 2
-    map_link = re.search(r'href="(https://yandex.ru/maps[^\"]+)"', variant)[1]
-    max_link = re.search(r'href="(https://max.ru/[^\"]+)"', variant)[1]
-    replacements = []
-    for i, match in enumerate(footers):
-        old = match.group()
-        doc_links = re.findall(r'<a href="(https://disk.yandex.ru/[^\"]+)"[^>]*>(.*?)</a>', old, re.S)
-        assert len(doc_links) == 4
-        theme = re.search(r'<button class="b-thm b-thm--txt".*?</button>', old, re.S).group()
-        schedule = '#s-rasp' if i == 0 else '#raspisanie'
-        documents = ''.join('<a href="' + href + '" target="_blank" rel="noopener">' + label + '</a>' for href, label in doc_links)
-        new = f'''<footer class="e-footer"><div class="b-w">
-          <div class="e-footbrand">
-            <a class="b-logo e-footlogo" href="#" data-go="fork" aria-label="Хочу абонемент, к началу сайта"><svg class="b-mark" aria-hidden="true" focusable="false"><use href="#hb-mark"/></svg></a>
-            {theme}
-          </div>
-          <div class="e-footgrid">
-            <section><h2>Как дойти</h2><p class="e-footlead">Москва,<br>Ленинский проспект, 95Б</p><p>Метро Новаторская,<br>выход №7, минута пешком</p><a class="e-footlink" href="{map_link}" target="_blank" rel="noopener">Открыть маршрут</a></section>
-            <section><h2>Когда прийти</h2><p class="e-foothours">9:00–22:00</p><p>Занятия по<br>предварительной записи</p><a class="b-btn e-footschedule" href="{schedule}">Расписание</a></section>
-            <section><h2>Связаться</h2><a class="e-footphone" href="tel:+79660863057">+7 966 086 30 57</a><div class="e-footmessengers"><a href="https://t.me/FlowAndCore" target="_blank" rel="noopener">Telegram</a><a href="{max_link}" target="_blank" rel="noopener">MAX</a></div><a class="e-footemail" href="mailto:novatorskaya@hochuabonement.ru">novatorskaya@hochuabonement.ru</a><div class="e-footstores"><a href="https://apps.apple.com/us/app/flexifit/id1619190163" target="_blank" rel="noopener">App Store</a><a href="https://play.google.com/store/apps/details?id=io.fitbase.flexifit" target="_blank" rel="noopener">Google Play</a></div></section>
-            <section class="e-footdocs"><h2>Документы</h2>{documents}</section>
-          </div>
-          <div class="e-footlegal"><p>ИП Малышев Михаил Евгеньевич<br>ИНН 773601148434 · ОГРНИП 326508100266347</p><a href="credits.html">Авторы пиктограмм и шрифтов</a></div>
-        </div></footer>'''
-        replacements.append((match.start(), match.end(), new))
-    for start, end, new in reversed(replacements):
-        variant = variant[:start] + new + variant[end:]
 
     # Native accordion on phones; all principles open on desktop.
     script = '''<script>
