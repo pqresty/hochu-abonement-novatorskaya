@@ -58,3 +58,7 @@ assert page.count('<html ') == page.count('</html>') == 1
 (OUT / '.nojekyll').touch()
 (OUT / 'robots.txt').write_text('User-agent: *\nDisallow: /\n')
 print('Built docs/index.html:', len(page.encode()), 'bytes.')
+
+# Keep the public baseline intact; assemble the optional design beside it.
+from build_editorial import render_variant
+render_variant(page)

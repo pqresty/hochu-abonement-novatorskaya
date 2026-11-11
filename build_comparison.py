@@ -1,0 +1,54 @@
+"""Package actual paired browser captures for Pages and the inline Orca viewer."""
+from pathlib import Path
+import base64
+import json
+import os
+from PIL import Image
+
+ROOT=Path(__file__).resolve().parent
+IMAGES=ROOT/'docs/comparison'
+names=[p.stem for p in sorted(IMAGES.glob('*.png'))]
+assert len(names)==10, names
+for name in names:
+    with Image.open(IMAGES/(name+'.png')) as im:
+        im.save(IMAGES/(name+'.webp'),'WEBP',quality=87,method=6)
+
+TEMPLATE='''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Хочу абонемент — было и стало</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;font-family:var(--font-sans,system-ui),sans-serif;background:var(--background,#fafaf8);color:var(--foreground,#20221f)}
+main{max-width:1440px;margin:auto}header{display:flex;gap:24px;justify-content:space-between;align-items:flex-start}h1{font-size:26px;letter-spacing:-.04em;line-height:1.2;margin:0 0 10px}p{line-height:1.6;font-size:14px;color:var(--muted-foreground,#63665f);margin:0;max-width:780px}
+header nav{display:flex;gap:14px;font-size:13px;white-space:nowrap;flex-wrap:wrap}a{color:inherit;text-underline-offset:3px}header a{padding:6px 0}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:23px 0 18px}.switch{display:flex;border:1px solid var(--border,#d9dcd4);border-radius:10px;padding:3px;background:var(--card,#fff)}button{font:inherit;cursor:pointer;color:inherit}button:focus-visible{outline:2px solid var(--ring,#566d48);outline-offset:3px}.switch button{border:0;border-radius:7px;padding:9px 14px;font-size:13px;background:none}.switch button[aria-pressed=true]{background:var(--secondary,#e9ede4);color:var(--secondary-foreground,#20221f)}button[hidden]{display:none}.hint{font-size:12px;color:var(--muted-foreground,#62665d);margin-left:auto}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}.pane{min-width:0;border:1px solid var(--border,#d9dcd4);border-radius:12px;overflow:hidden;background:var(--card,#fff)}.pane h2{font-size:14px;margin:0;padding:12px 16px;border-bottom:1px solid var(--border,#d9dcd4);display:flex;justify-content:space-between;gap:12px}.pane h2 span{font-weight:400;font-size:12px;color:var(--muted-foreground,#62665d)}.image-wrap{background:#f2ece2;line-height:0;cursor:zoom-in}.image-wrap img{display:block;width:100%;height:auto}.pair.phone .image-wrap{max-width:390px;margin:auto}.pair.phone .pane{background:var(--muted,#eaece7)}
+.caption{border-top:1px solid var(--border,#d9dcd4);margin-top:19px;padding-top:15px;font-size:14px;line-height:1.6;color:var(--muted-foreground,#62665d)}dialog{max-width:min(1500px,97vw);max-height:94vh;padding:0;border:1px solid var(--border,#d9dcd4);border-radius:12px;background:var(--card,#fff);color:var(--foreground,#20221f)}dialog::backdrop{background:rgba(0,0,0,.65)}.dialog-top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;position:sticky;top:0;background:var(--card,#fff);border-bottom:1px solid var(--border,#d9dcd4)}.dialog-top button{border:1px solid var(--border,#d9dcd4);border-radius:7px;padding:6px 10px;background:none}.dialog-image{overflow:auto}dialog img{display:block;max-width:100%;height:auto;margin:auto}
+@media(max-width:680px){body{padding:16px 12px}header{display:block}header nav{margin-top:12px}h1{font-size:23px}.controls{gap:10px}.switch button{padding:8px 10px;font-size:12px}.hint{display:none}.pair{gap:8px}.pane h2{padding:10px;font-size:13px}.pane h2 span{display:none}}
+</style></head><body><main>
+<header><div><h1>Было — стало</h1><p>Два изменения по мотивам Amrit Palace: ритм текстовых разделов и практичный подвал. Это реальные скриншоты сайта на одинаковой ширине.</p></div><nav><a href="__BASE__editorial.html#full" target="_blank" rel="noopener">Открыть вариант</a><a href="__BASE__index.html#full" target="_blank" rel="noopener">Прежний сайт</a></nav></header>
+<div class="controls"><div class="switch" aria-label="Устройство"><button type="button" data-device="1440" aria-pressed="true">Компьютер</button><button type="button" data-device="390" aria-pressed="false">Телефон</button></div><div class="switch" aria-label="Раздел"><button type="button" data-part="notes" aria-pressed="false">Вводные мысли</button><button type="button" data-part="team" aria-pressed="true">Принципы тренеров</button><button type="button" data-part="footer" aria-pressed="false">Подвал</button></div><span class="hint">Нажмите на снимок, чтобы увеличить</span></div>
+<div class="pair" id="pair"><section class="pane"><h2>Было <span id="size-before"></span></h2><div class="image-wrap" role="button" tabindex="0" data-enlarge="before" aria-label="Увеличить прежний вариант"><img id="before" alt="Прежнее оформление выбранного раздела"></div></section><section class="pane"><h2>Стало <span id="size-after"></span></h2><div class="image-wrap" role="button" tabindex="0" data-enlarge="after" aria-label="Увеличить новое оформление"><img id="after" alt="Новое оформление выбранного раздела"></div></section></div><p class="caption" id="caption"></p>
+<dialog id="zoom"><div class="dialog-top"><b id="zoom-title"></b><button type="button" id="close">Закрыть</button></div><div class="dialog-image"><img id="zoom-image" alt="Увеличенный скриншот выбранного оформления"></div></dialog>
+</main><script>
+const assets=__ASSETS__;let device='1440',part='team';
+const captions={notes:'Вместо трёх отдельных плашек — текстовые колонки на общем фоне с тонкими разделителями. Состав текста сохранён.',team:'Вместо шести карточек — открытая сетка принципов на компьютере и раскрывающийся список на телефоне. Все шесть текстов сохранены.',footer:'Контакты и документы собраны в четыре группы: как дойти, когда прийти, связаться, документы. Реквизиты вынесены в нижнюю строку.'};
+const titles={notes:'Вводные мысли',team:'Принципы тренеров',footer:'Подвал'};
+function render(){if(device==='390'&&part==='notes')part='team';document.querySelector('[data-part=notes]').hidden=device==='390';document.querySelectorAll('[data-device]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.device===device)));document.querySelectorAll('[data-part]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.part===part)));document.getElementById('pair').classList.toggle('phone',device==='390');['before','after'].forEach(state=>{document.getElementById(state).src=assets[`${device}-${part}-${state}`];document.getElementById('size-'+state).textContent=device+' px';});document.getElementById('caption').textContent=captions[part];}
+document.querySelectorAll('[data-device]').forEach(b=>b.onclick=()=>{device=b.dataset.device;render()});document.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{part=b.dataset.part;render()});
+function enlarge(state){document.getElementById('zoom-image').src=document.getElementById(state).src;document.getElementById('zoom-title').textContent=(state==='before'?'Было':'Стало')+' · '+titles[part]+' · '+device+' px';document.getElementById('zoom').showModal();}
+document.querySelectorAll('[data-enlarge]').forEach(b=>{b.onclick=()=>enlarge(b.dataset.enlarge);b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enlarge(b.dataset.enlarge)}}});document.getElementById('close').onclick=()=>document.getElementById('zoom').close();render();
+</script></body></html>'''
+
+public={name:'comparison/'+name+'.webp' for name in names}
+(ROOT/'docs/compare.html').write_text(TEMPLATE.replace('__ASSETS__',json.dumps(public)).replace('__BASE__',''))
+
+scratch=os.environ.get('ORCA_CHAT_SCRATCH_DIR')
+if scratch:
+    inline={}
+    for name in names:
+        # Full screenshot content, compressed for the inline artifact size limit.
+        inline[name]='data:image/webp;base64,'+base64.b64encode((IMAGES/(name+'.webp')).read_bytes()).decode()
+    out=Path(scratch)/'novatorskaya-before-after-34.html'
+    content=TEMPLATE.replace('__ASSETS__',json.dumps(inline)).replace('__BASE__','https://pqresty.github.io/hochu-abonement-novatorskaya/')
+    assert len(content.encode())<512*1024, len(content.encode())
+    out.write_text(content)
+    print('Inline comparison:',out,len(content.encode()),'bytes')
+print('Public comparison:',ROOT/'docs/compare.html')
