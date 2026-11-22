@@ -1,0 +1,27 @@
+.trial-line{margin:14px 0 18px;font-size:18px;font-weight:500}
+.visit-choice .b-d1{margin:0 0 28px}
+.visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8%;padding:28px 0 8px;border-top:1px solid var(--line)}
+.formats,.counts{display:flex;gap:5px;flex-wrap:wrap}
+.visit-choice button:not(.b-btn){font:inherit;font-size:15px;color:var(--text);padding:10px 16px;min-height:44px;border:1px solid var(--line);border-radius:32px;background:transparent;cursor:pointer}
+.visit-choice button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.visit-desc{max-width:36ch;margin:18px 0 0}
+.visit-choice fieldset{border:0;padding:0;margin:0 0 18px}
+.visit-choice legend{padding:0;margin-bottom:8px}
+.visit-price{font:300 clamp(32px,4vw,54px)/1.15 Unbounded,Onest,sans-serif}
+.visit-terms{margin:6px 0 18px;color:var(--muted)}
+.visit-progress{display:none}
+@media(min-width:961px){
+#pervoe .visit-progress{display:block;padding:15px 0;border-top:1px solid var(--line);margin-top:32px;color:var(--muted)}
+#pervoe .b-step{min-height:clamp(170px,28vh,280px);align-content:start}
+#pervoe .current::before{color:var(--btn);box-shadow:inset 3px 0 var(--btn)}
+#pervoe .current h3{font-weight:500}
+}
+@media(max-width:760px){
+.visit-grid{grid-template-columns:1fr;gap:22px;padding-top:18px}
+.visit-choice button:not(.b-btn){padding:8px 12px}
+.trial-line{margin:10px 0;font-size:16px}
+.b .b-hero .b-cta,.b .b-heroT .b-cta{display:flex;margin:12px 0;order:initial}
+.b .b-hero .b-cta .b-btn2,.b .b-heroT .b-cta .b-btn2{display:none}
+#pervoe .b-steps::before{display:none}
+#pervoe .b-step{padding:22px 0;border-top:1px solid var(--line)}
+}
