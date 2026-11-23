@@ -16,6 +16,23 @@ body = approved[approved.index('<div class="b b-editorial" id="broot">'):approve
 styles = styles.replace("url('assets/fonts/", "url('../assets/fonts/")
 body = body.replace('src="photos/', f'src="{asset_root}photos/')
 body = body.replace('href="credits.html"', f'href="{asset_root}credits.html"')
+documents = asset_root + 'tilda/documents/'
+privacy_old = 'https://disk.yandex.ru/i/2hXp9OcE0V1lGg'
+privacy = documents + 'privacy-2026-10-16.pdf'
+for old, new in {
+    'https://disk.yandex.ru/i/16IJBXB_RD3hAg': documents + 'oferta-2026-10-18.pdf',
+    'https://disk.yandex.ru/i/ghC5RawQLNnc1g': documents + 'studio-rules-2026-10-18.pdf',
+    privacy_old: privacy,
+}.items():
+    body = body.replace(old, new)
+rules = 'Правила студии</a></p>'
+payments = (
+    '<p style="margin:0 0 6px"><a href="' + documents
+    + 'payments-and-refunds-2026-10-18.pdf" target="_blank" rel="noopener">'
+    + 'Правила оплаты и возврата</a></p>'
+)
+assert body.count(rules) == 2
+body = body.replace(rules, rules + '\n' + payments)
 body, form_count = re.subn(r'\s*<form id="bform"[^>]*>.*?</form>', '', body, count=1, flags=re.S)
 body, handler_count = re.subn(
     r"    var agree=document.getElementById\('bagree'\).*?(?=    var foot=document.querySelector)",
@@ -50,6 +67,14 @@ def place_script(match):
 body = re.sub(r'<script([^>]*)>(.*?)</script>', place_script, body, flags=re.S)
 assert len(scripts) == 4
 init, site, widget_skin, mobile_principles = scripts
+mount = 'slot.appendChild(rec); slot.__on=true;'
+assert site.count(mount) == 1
+policy_selector = json.dumps(f'a[href="{privacy_old}"]')
+site = site.replace(
+    mount,
+    mount + "\n      rec.querySelectorAll(" + policy_selector
+    + ").forEach(function(link){link.href=" + json.dumps(privacy) + ";});",
+)
 art = f"""
 (function () {{
     const artwork = {json.dumps(svg_by_placeholder, ensure_ascii=False)};
