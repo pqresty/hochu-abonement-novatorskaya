@@ -10,6 +10,8 @@ approved = (docs / 'editorial.html').read_text()
 asset_root = 'https://pqresty.github.io/hochu-abonement-novatorskaya/'
 assets = docs / 'tilda'
 assets.mkdir(exist_ok=True)
+# Site analytics are opt-in and limited to the published Novatorskaya page.
+metrika_counter_id = 114683559
 
 styles = approved.split('<style>', 2)[2].split('</style>', 1)[0]
 body = approved[approved.index('<div class="b b-editorial" id="broot">'):approved.rindex('</body>')]
@@ -67,6 +69,9 @@ def place_script(match):
 body = re.sub(r'<script([^>]*)>(.*?)</script>', place_script, body, flags=re.S)
 assert len(scripts) == 4
 init, site, widget_skin, mobile_principles = scripts
+counter_declaration = 'var YM_ID=0;'
+assert site.count(counter_declaration) == 1
+site = site.replace(counter_declaration, f'var YM_ID={metrika_counter_id};')
 mount = 'slot.appendChild(rec); slot.__on=true;'
 assert site.count(mount) == 1
 policy_selector = json.dumps(f'a[href="{privacy_old}"]')
